@@ -302,6 +302,7 @@ def main():
     tester.test_auth_endpoints()
     tester.test_courses_endpoints()
     tester.test_subscription_endpoints()
+    tester.test_stripe_webhook()
     tester.test_user_settings_endpoints()
     tester.test_panic_session_endpoints()
     tester.test_error_cases()
