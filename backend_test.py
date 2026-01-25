@@ -153,7 +153,51 @@ class BreatheEasyAPITester:
         print("="*50)
         
         # Test get subscription plans
-        self.run_test("Get Subscription Plans", "GET", "api/subscriptions/plans", 200)
+        success, plans_response = self.run_test("Get Subscription Plans", "GET", "api/subscriptions/plans", 200)
+        
+        if success and plans_response:
+            plans = plans_response if isinstance(plans_response, list) else []
+            print(f"   Found {len(plans)} subscription plans")
+            
+            # Verify plan structure
+            for plan in plans:
+                if 'plan_id' in plan and 'name' in plan and 'price' in plan:
+                    print(f"   Plan: {plan['name']} - ${plan['price']}/{plan.get('interval', 'unknown')}")
+        
+        # Test checkout session creation (requires plan_id and origin_url)
+        if self.token:
+            checkout_data = {
+                "plan_id": "monthly",
+                "origin_url": "https://breatheasy-25.preview.emergentagent.com"
+            }
+            success, checkout_response = self.run_test(
+                "Create Checkout Session",
+                "POST",
+                "api/subscriptions/checkout",
+                200,
+                data=checkout_data
+            )
+            
+            if success and 'session_id' in checkout_response:
+                session_id = checkout_response['session_id']
+                print(f"   Created checkout session: {session_id}")
+                
+                # Test checkout status
+                self.run_test(
+                    "Get Checkout Status",
+                    "GET",
+                    f"api/subscriptions/status/{session_id}",
+                    200
+                )
+    
+    def test_stripe_webhook(self):
+        """Test Stripe webhook endpoint"""
+        print("\n" + "="*50)
+        print("TESTING STRIPE WEBHOOK")
+        print("="*50)
+        
+        # Test webhook endpoint exists (should return 200 even with empty body)
+        self.run_test("Stripe Webhook Endpoint", "POST", "api/webhook/stripe", 200)
 
     def test_user_settings_endpoints(self):
         """Test user settings endpoints"""
