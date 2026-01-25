@@ -1,8 +1,9 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useEmergencyStore, useSettingsStore, useUserStore } from '@/store/useStore';
+import { useEmergencyStore, useSettingsStore, useUserStore, useAudioStore } from '@/store/useStore';
 import { useState, useEffect, useCallback } from 'react';
-import { Heart, Volume2, VolumeX, Vibrate, X, ChevronRight, Check } from 'lucide-react';
+import { Heart, Volume2, VolumeX, Vibrate, X, ChevronRight, Check, Music } from 'lucide-react';
+import { useI18n, UpsellModal } from '@/App';
 
 // Emergency steps
 const STEPS = ['safety', 'breathing', 'grounding', 'reassurance', 'recovery'];
@@ -14,40 +15,26 @@ const groundingImages = [
   'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=400&h=400&fit=crop'
 ];
 
-// Breathing messages
-const breathingMessages = [
-  "Breathe in slowly...",
-  "Good, breathe out...",
-  "You're doing well...",
-  "Stay with me...",
-  "In through your nose...",
-  "Out through your mouth...",
-  "Let your shoulders drop...",
-  "Feel your feet on the ground..."
-];
-
-// Helpful items for recovery
-const helpfulOptions = [
-  { id: 'breathing', label: 'Breathing' },
-  { id: 'grounding', label: 'Grounding' },
-  { id: 'reassuring', label: 'Reassuring thoughts' },
-  { id: 'closing-eyes', label: 'Closing my eyes' },
-  { id: 'something-else', label: 'Something else' }
-];
-
 export default function Emergency() {
   const { step } = useParams();
   const navigate = useNavigate();
+  const { t, rtl } = useI18n();
   const currentStep = STEPS.indexOf(step || 'safety');
   
   const endSession = useEmergencyStore((state) => state.endSession);
   const addHelpfulItem = useEmergencyStore((state) => state.addHelpfulItem);
   const token = useUserStore((state) => state.token);
+  const isPremium = useUserStore((state) => state.isPremium);
   
   const soundEnabled = useSettingsStore((state) => state.soundEnabled);
   const vibrationEnabled = useSettingsStore((state) => state.vibrationEnabled);
   const setSound = useSettingsStore((state) => state.setSound);
   const setVibration = useSettingsStore((state) => state.setVibration);
+  
+  const play = useAudioStore((state) => state.play);
+  const stop = useAudioStore((state) => state.stop);
+  
+  const [showUpsell, setShowUpsell] = useState(false);
 
   const goToStep = (stepName) => {
     navigate(`/emergency/${stepName}`, { replace: true });
@@ -55,6 +42,18 @@ export default function Emergency() {
 
   const handleFinish = async () => {
     await endSession(token);
+    stop(); // Stop any playing audio
+    
+    // Show upsell for non-premium users
+    if (!isPremium()) {
+      setShowUpsell(true);
+    } else {
+      navigate('/', { replace: true });
+    }
+  };
+
+  const handleUpsellClose = () => {
+    setShowUpsell(false);
     navigate('/', { replace: true });
   };
 
@@ -67,12 +66,27 @@ export default function Emergency() {
     }
   }, [step, vibrationEnabled]);
 
+  // Play calming audio if sound is enabled
+  useEffect(() => {
+    if (soundEnabled && step === 'breathing') {
+      play('rain');
+    }
+    return () => {
+      if (step === 'recovery') {
+        stop();
+      }
+    };
+  }, [soundEnabled, step, play, stop]);
+
   return (
-    <div className="emergency-bg min-h-screen relative">
+    <div className={`emergency-bg min-h-screen relative ${rtl ? 'rtl' : ''}`}>
       {/* Header Controls */}
       <div className="absolute top-4 left-4 right-4 flex justify-between items-center z-10 safe-top">
         <button
-          onClick={() => navigate('/')}
+          onClick={() => {
+            stop();
+            navigate('/');
+          }}
           className="w-10 h-10 rounded-full bg-white/80 backdrop-blur flex items-center justify-center"
           data-testid="emergency-close"
         >
@@ -110,27 +124,29 @@ export default function Emergency() {
       {/* Step Content */}
       <AnimatePresence mode="wait">
         {step === 'safety' && (
-          <SafetyStep key="safety" onContinue={() => goToStep('breathing')} />
+          <SafetyStep key="safety" onContinue={() => goToStep('breathing')} t={t} />
         )}
         {step === 'breathing' && (
-          <BreathingStep key="breathing" onContinue={() => goToStep('grounding')} soundEnabled={soundEnabled} vibrationEnabled={vibrationEnabled} />
+          <BreathingStep key="breathing" onContinue={() => goToStep('grounding')} soundEnabled={soundEnabled} vibrationEnabled={vibrationEnabled} t={t} />
         )}
         {step === 'grounding' && (
-          <GroundingStep key="grounding" onContinue={() => goToStep('reassurance')} />
+          <GroundingStep key="grounding" onContinue={() => goToStep('reassurance')} t={t} onPlaySound={() => play('ocean')} />
         )}
         {step === 'reassurance' && (
-          <ReassuranceStep key="reassurance" onContinue={() => goToStep('recovery')} />
+          <ReassuranceStep key="reassurance" onContinue={() => goToStep('recovery')} t={t} />
         )}
         {step === 'recovery' && (
-          <RecoveryStep key="recovery" onFinish={handleFinish} onSelectItem={addHelpfulItem} />
+          <RecoveryStep key="recovery" onFinish={handleFinish} onSelectItem={addHelpfulItem} t={t} />
         )}
       </AnimatePresence>
+      
+      <UpsellModal isOpen={showUpsell} onClose={handleUpsellClose} />
     </div>
   );
 }
 
 // Safety Step
-function SafetyStep({ onContinue }) {
+function SafetyStep({ onContinue, t }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -139,13 +155,13 @@ function SafetyStep({ onContinue }) {
       className="min-h-screen flex flex-col items-center justify-center p-6 text-center"
       data-testid="emergency-safety-step"
     >
-      <p className="text-sm text-[#7A9B8D] mb-4">Emergency</p>
+      <p className="text-sm text-[#7A9B8D] mb-4">{t('emergency.emergency')}</p>
       
-      <h1 className="text-2xl text-[#4A6B5D] mb-2 italic">I'm here with you.</h1>
-      <h1 className="text-2xl text-[#4A6B5D] mb-2 italic">Focus on my voice:</h1>
+      <h1 className="text-2xl text-[#4A6B5D] mb-2 italic">{t('helpNow.imHere')}</h1>
+      <h1 className="text-2xl text-[#4A6B5D] mb-2 italic">{t('emergency.focusOnVoice')}</h1>
       
-      <h2 className="safe-text-large mt-6 mb-2">You're safe.</h2>
-      <h2 className="safe-text-large mb-8">Just breathe with me.</h2>
+      <h2 className="safe-text-large mt-6 mb-2">{t('emergency.youreSafeShort')}</h2>
+      <h2 className="safe-text-large mb-8">{t('emergency.breatheWithMe')}</h2>
       
       <motion.button
         onClick={onContinue}
@@ -154,18 +170,25 @@ function SafetyStep({ onContinue }) {
         whileTap={{ scale: 0.98 }}
         data-testid="safety-continue-btn"
       >
-        Start breathing
+        {t('emergency.startBreathing')}
       </motion.button>
     </motion.div>
   );
 }
 
 // Breathing Step
-function BreathingStep({ onContinue, soundEnabled, vibrationEnabled }) {
+function BreathingStep({ onContinue, soundEnabled, vibrationEnabled, t }) {
   const [phase, setPhase] = useState('inhale');
   const [messageIndex, setMessageIndex] = useState(0);
   const [seconds, setSeconds] = useState(120); // 2 minutes default
   const [isRunning, setIsRunning] = useState(true);
+
+  const breathingMessages = [
+    t('emergency.breatheInSlowly'),
+    t('emergency.goodBreatheOut'),
+    t('emergency.youreDoingWell'),
+    t('emergency.stayWithMe'),
+  ];
 
   // Breathing cycle: 4s inhale, 6s exhale
   useEffect(() => {
@@ -201,7 +224,7 @@ function BreathingStep({ onContinue, soundEnabled, vibrationEnabled }) {
       setMessageIndex((prev) => (prev + 1) % breathingMessages.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, [isRunning]);
+  }, [isRunning, breathingMessages.length]);
 
   // Timer countdown
   useEffect(() => {
@@ -226,8 +249,8 @@ function BreathingStep({ onContinue, soundEnabled, vibrationEnabled }) {
       className="min-h-screen flex flex-col items-center justify-center p-6 text-center"
       data-testid="emergency-breathing-step"
     >
-      <p className="text-sm text-[#7A9B8D] mb-2">You're doing great.</p>
-      <p className="text-[#4A6B5D] mb-8">Keep breathing at my pace...</p>
+      <p className="text-sm text-[#7A9B8D] mb-2">{t('emergency.doingGreat')}</p>
+      <p className="text-[#4A6B5D] mb-8">{t('emergency.keepBreathing')}</p>
 
       {/* Breathing Circle */}
       <div className="relative mb-8">
@@ -243,7 +266,7 @@ function BreathingStep({ onContinue, soundEnabled, vibrationEnabled }) {
           }}
         >
           <span className="text-[#1A3C2F] text-xl font-semibold">
-            {phase === 'inhale' ? 'Breathe in...' : 'Breathe out...'}
+            {phase === 'inhale' ? t('emergency.breatheIn') : t('emergency.breatheOut')}
           </span>
         </motion.div>
         
@@ -273,33 +296,33 @@ function BreathingStep({ onContinue, soundEnabled, vibrationEnabled }) {
           className="btn-secondary"
           data-testid="breathing-toggle"
         >
-          {isRunning ? 'Pause' : 'Resume'}
+          {isRunning ? t('emergency.pause') : t('emergency.resume')}
         </button>
         <button
           onClick={onContinue}
           className="btn-primary"
           data-testid="breathing-continue"
         >
-          Continue
+          {t('emergency.continue')}
         </button>
       </div>
 
       <p className="text-xs text-[#7A9B8D] mt-4">
-        {soundEnabled ? 'Soft sounds on' : 'Sounds off'} • {vibrationEnabled ? 'Soft vibrations on' : 'Vibrations off'}
+        {soundEnabled ? t('emergency.softSoundsOn') : t('emergency.soundsOff')} • {vibrationEnabled ? t('emergency.softVibrationsOn') : t('emergency.vibrationsOff')}
       </p>
     </motion.div>
   );
 }
 
 // Grounding Step
-function GroundingStep({ onContinue }) {
+function GroundingStep({ onContinue, t, onPlaySound }) {
   const [promptIndex, setPromptIndex] = useState(0);
   const prompts = [
-    "Notice one thing you can see.",
-    "Notice one sound around you.",
-    "Notice one physical sensation.",
-    "Feel your feet on the ground.",
-    "Notice your breath."
+    t('emergency.noticeThingSee'),
+    t('emergency.noticeSound'),
+    t('emergency.noticeSensation'),
+    t('emergency.feelFeet'),
+    t('emergency.noticeBreath'),
   ];
 
   return (
@@ -310,10 +333,10 @@ function GroundingStep({ onContinue }) {
       className="min-h-screen flex flex-col items-center justify-center p-6 text-center"
       data-testid="emergency-grounding-step"
     >
-      <p className="text-sm text-[#7A9B8D] mb-4">5-4-3-2-1 grounding</p>
+      <p className="text-sm text-[#7A9B8D] mb-4">{t('emergency.grounding')}</p>
       
       <h1 className="safe-text-large mb-2">{prompts[promptIndex]}</h1>
-      <p className="text-[#4A6B5D] mb-8">Describe it to yourself...</p>
+      <p className="text-[#4A6B5D] mb-8">{t('emergency.describeYourself')}</p>
 
       {/* Progress dots */}
       <div className="flex gap-2 mb-8">
@@ -345,14 +368,15 @@ function GroundingStep({ onContinue }) {
           className="btn-primary w-full"
           data-testid="grounding-next"
         >
-          {promptIndex < prompts.length - 1 ? 'Count another' : 'Continue'}
+          {promptIndex < prompts.length - 1 ? t('emergency.countAnother') : t('emergency.continue')}
         </button>
         <button
-          onClick={onContinue}
-          className="btn-secondary w-full"
+          onClick={onPlaySound}
+          className="btn-secondary w-full flex items-center justify-center gap-2"
           data-testid="grounding-sounds"
         >
-          Hear calming sounds
+          <Music className="w-4 h-4" />
+          {t('emergency.hearCalmingSounds')}
         </button>
       </div>
     </motion.div>
@@ -360,7 +384,7 @@ function GroundingStep({ onContinue }) {
 }
 
 // Reassurance Step
-function ReassuranceStep({ onContinue }) {
+function ReassuranceStep({ onContinue, t }) {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
@@ -380,11 +404,10 @@ function ReassuranceStep({ onContinue }) {
     >
       <Heart className="w-10 h-10 text-[#76B992] mb-4" fill="#A8D5BA" />
       
-      <h1 className="safe-text-large mb-2">You're going</h1>
-      <h1 className="safe-text-large mb-4">to be okay.</h1>
+      <h1 className="safe-text-large mb-4">{t('emergency.goingToBeOkay')}</h1>
       
       <p className="text-[#4A6B5D] mb-8">
-        This feeling will pass<br />and you'll be safe.
+        {t('emergency.feelingWillPass')}
       </p>
 
       {/* Progress Ring */}
@@ -411,7 +434,7 @@ function ReassuranceStep({ onContinue }) {
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-sm text-[#7A9B8D]">More at ease</span>
+          <span className="text-sm text-[#7A9B8D]">{t('emergency.moreAtEase')}</span>
           <span className="text-4xl font-bold text-[#1A3C2F]">{progress}%</span>
         </div>
       </div>
@@ -421,15 +444,23 @@ function ReassuranceStep({ onContinue }) {
         className="btn-primary"
         data-testid="reassurance-continue"
       >
-        Finish
+        {t('emergency.finish')}
       </button>
     </motion.div>
   );
 }
 
 // Recovery Step
-function RecoveryStep({ onFinish, onSelectItem }) {
+function RecoveryStep({ onFinish, onSelectItem, t }) {
   const [selected, setSelected] = useState([]);
+
+  const helpfulOptions = [
+    { id: 'breathing', label: t('emergency.breathing') },
+    { id: 'grounding', label: t('emergency.grounding') },
+    { id: 'reassuring', label: t('emergency.reassuringThoughts') },
+    { id: 'closing-eyes', label: t('emergency.closingEyes') },
+    { id: 'something-else', label: t('emergency.somethingElse') }
+  ];
 
   const toggleItem = (id) => {
     if (selected.includes(id)) {
@@ -450,9 +481,9 @@ function RecoveryStep({ onFinish, onSelectItem }) {
     >
       <Heart className="w-10 h-10 text-[#76B992] mb-4" fill="#A8D5BA" />
       
-      <h1 className="safe-text-large mb-6">You're okay now.</h1>
+      <h1 className="safe-text-large mb-6">{t('emergency.youreOkayNow')}</h1>
       
-      <p className="text-[#4A6B5D] mb-6">What helped even a little?</p>
+      <p className="text-[#4A6B5D] mb-6">{t('emergency.whatHelped')}</p>
 
       {/* Options */}
       <div className="space-y-3 w-full max-w-xs mb-8">
@@ -480,7 +511,7 @@ function RecoveryStep({ onFinish, onSelectItem }) {
         className="btn-primary w-full max-w-xs"
         data-testid="recovery-finish"
       >
-        Finish
+        {t('emergency.finish')}
       </button>
     </motion.div>
   );
