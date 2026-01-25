@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, Check, Play, Pause, Volume2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useUserStore } from '@/store/useStore';
-import ReactMarkdown from 'react-markdown';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
 
