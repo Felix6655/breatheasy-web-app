@@ -27,8 +27,15 @@ JWT_SECRET = os.environ.get('JWT_SECRET', 'breatheasy_secret_2024')
 JWT_ALGORITHM = 'HS256'
 JWT_EXPIRATION_DAYS = 7
 
-# Stripe Config
-STRIPE_API_KEY = os.environ.get('STRIPE_API_KEY')
+# Stripe Config - supports both test and live keys
+STRIPE_API_KEY = os.environ.get('STRIPE_API_KEY') or os.environ.get('STRIPE_SECRET_KEY')
+STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET', '')
+STRIPE_PRICE_MONTHLY = os.environ.get('STRIPE_PRICE_MONTHLY', '')  # price_xxx for live
+STRIPE_PRICE_YEARLY = os.environ.get('STRIPE_PRICE_YEARLY', '')    # price_xxx for live
+
+# App URLs
+APP_URL = os.environ.get('APP_URL', '')
+API_URL = os.environ.get('API_URL', '')
 
 # Stripe Checkout import
 from emergentintegrations.payments.stripe.checkout import (
@@ -110,6 +117,7 @@ class SubscriptionPlan(BaseModel):
     price: float
     interval: str
     features: List[str]
+    stripe_price_id: Optional[str] = None
 
 # Subscription Plans
 SUBSCRIPTION_PLANS = {
@@ -118,6 +126,7 @@ SUBSCRIPTION_PLANS = {
         name="Premium Monthly",
         price=9.99,
         interval="month",
+        stripe_price_id=STRIPE_PRICE_MONTHLY or None,
         features=[
             "Full courses access",
             "Night panic support",
@@ -131,6 +140,7 @@ SUBSCRIPTION_PLANS = {
         name="Premium Yearly",
         price=79.99,
         interval="year",
+        stripe_price_id=STRIPE_PRICE_YEARLY or None,
         features=[
             "Full courses access",
             "Night panic support",
@@ -742,11 +752,19 @@ async def complete_lesson(course_id: str, lesson_id: str, request: Request):
 @api_router.get("/subscriptions/plans")
 async def get_subscription_plans():
     """Get available subscription plans"""
-    return list(SUBSCRIPTION_PLANS.values())
+    plans = []
+    for plan in SUBSCRIPTION_PLANS.values():
+        plan_dict = plan.model_dump()
+        del plan_dict['stripe_price_id']  # Don't expose price IDs to frontend
+        plans.append(plan_dict)
+    return plans
 
 @api_router.post("/subscriptions/checkout")
 async def create_checkout_session(request: Request):
     """Create Stripe checkout session"""
+    if not STRIPE_API_KEY:
+        raise HTTPException(status_code=503, detail="Payment system temporarily unavailable")
+    
     body = await request.json()
     plan_id = body.get('plan_id')
     origin_url = body.get('origin_url')
@@ -764,9 +782,10 @@ async def create_checkout_session(request: Request):
     webhook_url = f"{host_url}api/webhook/stripe"
     stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY, webhook_url=webhook_url)
     
-    # Build URLs
-    success_url = f"{origin_url}/subscription/success?session_id={{CHECKOUT_SESSION_ID}}"
-    cancel_url = f"{origin_url}/subscription"
+    # Use APP_URL if set, otherwise use origin from request
+    base_url = APP_URL or origin_url
+    success_url = f"{base_url}/subscription/success?session_id={{CHECKOUT_SESSION_ID}}"
+    cancel_url = f"{base_url}/subscription"
     
     # Create checkout session
     checkout_request = CheckoutSessionRequest(
@@ -801,6 +820,9 @@ async def create_checkout_session(request: Request):
 @api_router.get("/subscriptions/status/{session_id}")
 async def get_checkout_status(session_id: str, request: Request):
     """Check payment status and update subscription"""
+    if not STRIPE_API_KEY:
+        raise HTTPException(status_code=503, detail="Payment system temporarily unavailable")
+    
     # Initialize Stripe
     host_url = str(request.base_url)
     webhook_url = f"{host_url}api/webhook/stripe"
@@ -846,6 +868,9 @@ async def get_checkout_status(session_id: str, request: Request):
 @api_router.post("/webhook/stripe")
 async def stripe_webhook(request: Request):
     """Handle Stripe webhooks"""
+    if not STRIPE_API_KEY:
+        return JSONResponse(status_code=200, content={"status": "skipped"})
+    
     body = await request.body()
     signature = request.headers.get("Stripe-Signature")
     
@@ -854,11 +879,28 @@ async def stripe_webhook(request: Request):
     stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY, webhook_url=webhook_url)
     
     try:
-        webhook_response = await stripe_checkout.handle_webhook(body, signature)
+        # If webhook secret is set, verify signature
+        if STRIPE_WEBHOOK_SECRET:
+            import stripe
+            stripe.api_key = STRIPE_API_KEY
+            event = stripe.Webhook.construct_event(
+                body, signature, STRIPE_WEBHOOK_SECRET
+            )
+            event_type = event['type']
+            event_data = event['data']['object']
+        else:
+            # Use emergent integration handler
+            webhook_response = await stripe_checkout.handle_webhook(body, signature)
+            event_type = 'checkout.session.completed'
+            event_data = {'metadata': webhook_response.metadata, 'id': webhook_response.session_id}
+            
+            if webhook_response.payment_status != "paid":
+                return {"status": "success"}
         
-        if webhook_response.payment_status == "paid":
-            session_id = webhook_response.session_id
-            metadata = webhook_response.metadata
+        # Handle different event types
+        if event_type == 'checkout.session.completed':
+            session_id = event_data.get('id')
+            metadata = event_data.get('metadata', {})
             
             # Update transaction
             await db.payment_transactions.update_one(
@@ -880,6 +922,27 @@ async def stripe_webhook(request: Request):
                         "subscription_updated_at": datetime.now(timezone.utc).isoformat()
                     }}
                 )
+                logger.info(f"Subscription activated for user {user_id}")
+        
+        elif event_type == 'customer.subscription.created':
+            logger.info("Subscription created event received")
+            
+        elif event_type == 'customer.subscription.updated':
+            logger.info("Subscription updated event received")
+            
+        elif event_type == 'customer.subscription.deleted':
+            # Handle subscription cancellation
+            customer_id = event_data.get('customer')
+            if customer_id:
+                # Find user by stripe_customer_id and downgrade
+                await db.users.update_one(
+                    {"stripe_customer_id": customer_id},
+                    {"$set": {
+                        "subscription_status": "free",
+                        "subscription_cancelled_at": datetime.now(timezone.utc).isoformat()
+                    }}
+                )
+                logger.info(f"Subscription cancelled for customer {customer_id}")
         
         return {"status": "success"}
     except Exception as e:
@@ -894,7 +957,12 @@ async def root():
 
 @api_router.get("/health")
 async def health_check():
-    return {"status": "healthy", "timestamp": datetime.now(timezone.utc).isoformat()}
+    return {
+        "status": "healthy", 
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "stripe_configured": bool(STRIPE_API_KEY),
+        "stripe_mode": "live" if STRIPE_API_KEY and STRIPE_API_KEY.startswith("sk_live") else "test"
+    }
 
 # Include router
 app.include_router(api_router)
