@@ -2,13 +2,17 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   User, Settings, Crown, LogOut, ChevronRight, 
-  Vibrate, Volume2, Mic, Moon
+  Vibrate, Volume2, Mic, Globe, Check
 } from 'lucide-react';
 import { useUserStore, useSettingsStore } from '@/store/useStore';
 import { Switch } from '@/components/ui/switch';
+import { useI18n } from '@/App';
+import { languages } from '@/i18n';
+import { useState } from 'react';
 
 export default function Profile() {
   const navigate = useNavigate();
+  const { t, language: currentLang, rtl } = useI18n();
   const user = useUserStore((state) => state.user);
   const isAuthenticated = useUserStore((state) => state.isAuthenticated);
   const logout = useUserStore((state) => state.logout);
@@ -21,7 +25,10 @@ export default function Profile() {
   const setVibration = useSettingsStore((state) => state.setVibration);
   const setSound = useSettingsStore((state) => state.setSound);
   const setVoiceGuidance = useSettingsStore((state) => state.setVoiceGuidance);
+  const setLanguage = useSettingsStore((state) => state.setLanguage);
   const saveToServer = useSettingsStore((state) => state.saveToServer);
+  
+  const [showLanguageSelector, setShowLanguageSelector] = useState(false);
 
   const handleSettingChange = (setter, value) => {
     setter(value);
@@ -30,13 +37,20 @@ export default function Profile() {
     }
   };
 
+  const handleLanguageChange = (langCode) => {
+    setLanguage(langCode);
+    setShowLanguageSelector(false);
+  };
+
   const handleLogout = async () => {
     await logout();
     navigate('/');
   };
 
+  const currentLanguage = languages.find(l => l.code === currentLang) || languages[0];
+
   return (
-    <div className="page-scroll p-6 safe-top">
+    <div className={`page-scroll p-6 safe-top ${rtl ? 'rtl' : ''}`}>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -45,7 +59,7 @@ export default function Profile() {
         {/* Header */}
         <div className="pt-4">
           <h1 className="text-2xl font-bold text-[#1A3C2F]" data-testid="profile-title">
-            Profile
+            {t('profile.title')}
           </h1>
         </div>
 
@@ -73,7 +87,7 @@ export default function Profile() {
                     onClick={() => navigate('/subscription')}
                     className="text-sm text-[#76B992] font-medium mt-1"
                   >
-                    Upgrade to Premium →
+                    {t('profile.upgradeToPremium')} →
                   </button>
                 )}
               </div>
@@ -82,9 +96,9 @@ export default function Profile() {
         ) : (
           <div className="card p-5 text-center">
             <User className="w-12 h-12 text-[#76B992] mx-auto mb-3" />
-            <h2 className="font-semibold text-[#1A3C2F] mb-2">Sign in to save progress</h2>
+            <h2 className="font-semibold text-[#1A3C2F] mb-2">{t('profile.signInToSave')}</h2>
             <p className="text-sm text-[#7A9B8D] mb-4">
-              Create an account to track your courses and sync settings across devices.
+              {t('profile.createAccount')}
             </p>
             <div className="flex gap-3 justify-center">
               <button
@@ -92,14 +106,14 @@ export default function Profile() {
                 className="btn-primary text-sm py-3 px-6"
                 data-testid="profile-login-btn"
               >
-                Sign In
+                {t('profile.signIn')}
               </button>
               <button
                 onClick={() => navigate('/register')}
                 className="btn-secondary text-sm py-3 px-6"
                 data-testid="profile-register-btn"
               >
-                Sign Up
+                {t('profile.signUp')}
               </button>
             </div>
           </div>
@@ -109,7 +123,7 @@ export default function Profile() {
         <div className="card p-5 space-y-4">
           <h3 className="font-semibold text-[#1A3C2F] flex items-center gap-2">
             <Settings className="w-5 h-5 text-[#76B992]" />
-            Settings
+            {t('profile.settings')}
           </h3>
 
           <div className="space-y-4">
@@ -120,8 +134,8 @@ export default function Profile() {
                   <Vibrate className="w-5 h-5 text-[#76B992]" />
                 </div>
                 <div>
-                  <p className="font-medium text-[#1A3C2F]">Vibration</p>
-                  <p className="text-xs text-[#7A9B8D]">Gentle vibrations during exercises</p>
+                  <p className="font-medium text-[#1A3C2F]">{t('profile.vibration')}</p>
+                  <p className="text-xs text-[#7A9B8D]">{t('profile.vibrationDesc')}</p>
                 </div>
               </div>
               <Switch
@@ -138,8 +152,8 @@ export default function Profile() {
                   <Volume2 className="w-5 h-5 text-[#76B992]" />
                 </div>
                 <div>
-                  <p className="font-medium text-[#1A3C2F]">Sound</p>
-                  <p className="text-xs text-[#7A9B8D]">Calming sounds during exercises</p>
+                  <p className="font-medium text-[#1A3C2F]">{t('profile.sound')}</p>
+                  <p className="text-xs text-[#7A9B8D]">{t('profile.soundDesc')}</p>
                 </div>
               </div>
               <Switch
@@ -156,8 +170,8 @@ export default function Profile() {
                   <Mic className="w-5 h-5 text-[#76B992]" />
                 </div>
                 <div>
-                  <p className="font-medium text-[#1A3C2F]">Voice Guidance</p>
-                  <p className="text-xs text-[#7A9B8D]">Spoken instructions during exercises</p>
+                  <p className="font-medium text-[#1A3C2F]">{t('profile.voiceGuidance')}</p>
+                  <p className="text-xs text-[#7A9B8D]">{t('profile.voiceGuidanceDesc')}</p>
                 </div>
               </div>
               <Switch
@@ -165,6 +179,53 @@ export default function Profile() {
                 onCheckedChange={(checked) => handleSettingChange(setVoiceGuidance, checked)}
                 data-testid="toggle-setting-voice"
               />
+            </div>
+
+            {/* Language Selector */}
+            <div className="relative">
+              <button
+                onClick={() => setShowLanguageSelector(!showLanguageSelector)}
+                className="w-full flex items-center justify-between"
+                data-testid="language-selector-btn"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-[#E8F5E9] flex items-center justify-center">
+                    <Globe className="w-5 h-5 text-[#76B992]" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-[#1A3C2F]">{t('profile.language')}</p>
+                    <p className="text-xs text-[#7A9B8D]">{currentLanguage.nativeName}</p>
+                  </div>
+                </div>
+                <ChevronRight className={`w-5 h-5 text-[#7A9B8D] transition-transform ${showLanguageSelector ? 'rotate-90' : ''}`} />
+              </button>
+              
+              {showLanguageSelector && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  className="mt-3 bg-[#F7FBF9] rounded-xl overflow-hidden"
+                >
+                  {languages.map((lang) => (
+                    <button
+                      key={lang.code}
+                      onClick={() => handleLanguageChange(lang.code)}
+                      className={`w-full flex items-center justify-between p-3 hover:bg-[#E8F5E9] transition-colors ${
+                        currentLang === lang.code ? 'bg-[#E8F5E9]' : ''
+                      }`}
+                      data-testid={`lang-${lang.code}`}
+                    >
+                      <div>
+                        <p className="font-medium text-[#1A3C2F] text-sm">{lang.nativeName}</p>
+                        <p className="text-xs text-[#7A9B8D]">{lang.name}</p>
+                      </div>
+                      {currentLang === lang.code && (
+                        <Check className="w-5 h-5 text-[#76B992]" />
+                      )}
+                    </button>
+                  ))}
+                </motion.div>
+              )}
             </div>
           </div>
         </div>
@@ -181,8 +242,8 @@ export default function Profile() {
                 <Crown className="w-6 h-6 text-[#3E3208]" />
               </div>
               <div>
-                <p className="font-semibold text-[#1A3C2F]">Upgrade to Premium</p>
-                <p className="text-sm text-[#4A6B5D]">Full courses, offline access & more</p>
+                <p className="font-semibold text-[#1A3C2F]">{t('profile.upgradeToPremium')}</p>
+                <p className="text-sm text-[#4A6B5D]">{t('profile.upgradeDesc')}</p>
               </div>
             </div>
             <ChevronRight className="w-5 h-5 text-[#7A9B8D]" />
@@ -197,14 +258,14 @@ export default function Profile() {
             data-testid="logout-btn"
           >
             <LogOut className="w-5 h-5" />
-            Sign Out
+            {t('profile.signOut')}
           </button>
         )}
 
         {/* App Info */}
         <div className="text-center py-4">
-          <p className="text-sm text-[#7A9B8D]">BreatheEasy v1.0.0</p>
-          <p className="text-xs text-[#7A9B8D] mt-1">Made with care for your peace of mind</p>
+          <p className="text-sm text-[#7A9B8D]">{t('profile.version')}</p>
+          <p className="text-xs text-[#7A9B8D] mt-1">{t('profile.madeWithCare')}</p>
         </div>
       </motion.div>
     </div>
