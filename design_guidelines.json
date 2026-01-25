@@ -1,0 +1,192 @@
+{
+  "identity": {
+    "persona": "E1: The Anti-AI Designer",
+    "mission": "Create a panic attack & anxiety support app that is calm, reassuring, and human. Avoid clinical sterility. Prioritize emotional safety and immediate relief.",
+    "principles": [
+      "Fusion over Imitation: Mix nature aesthetics with modern app fluidity.",
+      "Emotion First: Every interaction must lower the user's heart rate.",
+      "Content is King: The 'Help Now' flow is a narrative arc, not just a set of screens.",
+      "Zoom In: Focus on the breath, the grounding object. Remove distractions.",
+      "Negative Space: Use whitespace (or 'greenspace') to let the user breathe."
+    ]
+  },
+  "typography": {
+    "headings": {
+      "font_family": "Nunito, sans-serif",
+      "weights": ["600", "700", "800"],
+      "usage": "Use for all major headings. The rounded terminals feel friendly and safe.",
+      "sizes": {
+        "h1": "text-4xl md:text-5xl tracking-tight",
+        "h2": "text-3xl md:text-4xl tracking-tight",
+        "h3": "text-2xl md:text-3xl",
+        "h4": "text-xl md:text-2xl"
+      }
+    },
+    "body": {
+      "font_family": "Lato, sans-serif",
+      "weights": ["400", "500"],
+      "usage": "Use for all body text, instructions, and buttons. High readability is key.",
+      "sizes": {
+        "base": "text-base md:text-lg leading-relaxed",
+        "small": "text-sm leading-relaxed",
+        "large": "text-lg md:text-xl leading-relaxed"
+      }
+    },
+    "imports": [
+      "@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Nunito:wght@600;700;800&display=swap');"
+    ]
+  },
+  "colors": {
+    "palette": {
+      "primary": {
+        "DEFAULT": "#A8D5BA",
+        "foreground": "#1A3C2F",
+        "hover": "#8FC7A6",
+        "active": "#76B992"
+      },
+      "secondary": {
+        "DEFAULT": "#BCE3E1",
+        "foreground": "#1A3C2F",
+        "hover": "#A5D6D3"
+      },
+      "background": {
+        "DEFAULT": "#F7FBF9",
+        "paper": "#FFFFFF",
+        "subtle": "#E8F5E9"
+      },
+      "text": {
+        "primary": "#1A3C2F",
+        "secondary": "#4A6B5D",
+        "muted": "#7A9B8D"
+      },
+      "accent": {
+        "DEFAULT": "#F4D35E",
+        "foreground": "#3E3208"
+      },
+      "status": {
+        "success": "#A8D5BA",
+        "error": "#E57373",
+        "warning": "#FFB74D",
+        "info": "#64B5F6"
+      }
+    },
+    "gradients": {
+      "calm_green": "bg-gradient-to-b from-[#F7FBF9] to-[#E8F5E9]",
+      "breathing_circle": "bg-gradient-to-br from-[#A8D5BA] to-[#8FC7A6]",
+      "overlay_fade": "bg-gradient-to-t from-[#1A3C2F]/20 to-transparent"
+    },
+    "rules": [
+      "NO dark themes. The app must be light and airy.",
+      "NO red for errors unless absolutely critical. Use soft orange or muted red.",
+      "Text must always have high contrast (WCAG AA). Use #1A3C2F for main text."
+    ]
+  },
+  "layout": {
+    "spacing": {
+      "container_padding": "p-6 md:p-8",
+      "section_gap": "gap-8 md:gap-12",
+      "element_gap": "gap-4"
+    },
+    "grid_systems": {
+      "dashboard": "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6",
+      "courses": "grid grid-cols-1 md:grid-cols-2 gap-6",
+      "tools": "grid grid-cols-2 md:grid-cols-3 gap-4"
+    },
+    "containers": {
+      "main": "max-w-md mx-auto min-h-screen bg-[#F7FBF9] shadow-2xl overflow-hidden relative",
+      "card": "bg-white rounded-3xl shadow-sm border border-[#E8F5E9] p-6"
+    },
+    "bottom_nav": {
+      "height": "h-20",
+      "style": "fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-lg border-t border-[#E8F5E9] flex justify-around items-center z-50 max-w-md mx-auto"
+    }
+  },
+  "components": {
+    "buttons": {
+      "primary": "bg-[#A8D5BA] text-[#1A3C2F] hover:bg-[#8FC7A6] rounded-full px-8 py-4 font-bold text-lg shadow-md transition-all hover:scale-105 active:scale-95",
+      "secondary": "bg-white text-[#1A3C2F] border-2 border-[#A8D5BA] hover:bg-[#F0F7F4] rounded-full px-8 py-4 font-bold text-lg transition-all",
+      "ghost": "bg-transparent text-[#4A6B5D] hover:bg-[#E8F5E9] rounded-full px-6 py-3 font-semibold transition-all",
+      "panic": "bg-[#A8D5BA] text-[#1A3C2F] rounded-full w-32 h-32 flex items-center justify-center text-xl font-black shadow-lg animate-pulse hover:animate-none hover:scale-110 transition-all border-4 border-white ring-4 ring-[#A8D5BA]/30"
+    },
+    "cards": {
+      "course": "group relative overflow-hidden rounded-3xl bg-white shadow-sm hover:shadow-md transition-all cursor-pointer aspect-[4/5]",
+      "tool": "bg-white rounded-2xl p-4 flex flex-col items-center justify-center gap-3 shadow-sm hover:shadow-md transition-all border border-transparent hover:border-[#A8D5BA]",
+      "emergency_step": "bg-white/80 backdrop-blur-md rounded-3xl p-8 shadow-lg border border-white/50 text-center"
+    },
+    "inputs": {
+      "default": "bg-white border border-[#E8F5E9] rounded-xl px-4 py-3 text-[#1A3C2F] placeholder-[#7A9B8D] focus:outline-none focus:ring-2 focus:ring-[#A8D5BA] focus:border-transparent transition-all"
+    }
+  },
+  "assets": {
+    "images": {
+      "backgrounds": {
+        "forest_calm": "https://images.unsplash.com/photo-1754999651066-671b79931dd3?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "water_ripples": "https://images.unsplash.com/photo-1767242355986-6d63162d4a20?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "soft_clouds": "https://images.unsplash.com/photo-1761166478784-dc565cffb472?crop=entropy&cs=srgb&fm=jpg&q=85"
+      },
+      "courses": {
+        "panic_101": "https://images.unsplash.com/photo-1754999651104-ea9dc19d89b2?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "anxiety_mastery": "https://images.unsplash.com/photo-1762271458831-4d582c871a55?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "worry_free": "https://images.unsplash.com/photo-1755875479709-4698b71ec494?crop=entropy&cs=srgb&fm=jpg&q=85"
+      }
+    },
+    "icons": {
+      "library": "lucide-react",
+      "style": "stroke-width={2} className='text-[#1A3C2F]'"
+    }
+  },
+  "motion": {
+    "libraries": ["framer-motion"],
+    "animations": {
+      "page_transition": {
+        "initial": { "opacity": 0, "y": 20 },
+        "animate": { "opacity": 1, "y": 0 },
+        "exit": { "opacity": 0, "y": -20 },
+        "transition": { "duration": 0.4, "ease": "easeOut" }
+      },
+      "breathing_circle": {
+        "inhale": { "scale": 1.5, "opacity": 1 },
+        "exhale": { "scale": 1, "opacity": 0.8 },
+        "hold": { "scale": 1.5, "rotate": 10 }
+      },
+      "stagger_list": {
+        "container": {
+          "hidden": { "opacity": 0 },
+          "show": {
+            "opacity": 1,
+            "transition": { "staggerChildren": 0.1 }
+          }
+        },
+        "item": {
+          "hidden": { "opacity": 0, "y": 10 },
+          "show": { "opacity": 1, "y": 0 }
+        }
+      }
+    }
+  },
+  "accessibility": {
+    "rules": [
+      "Ensure text contrast ratio is at least 4.5:1.",
+      "Support 'prefers-reduced-motion'.",
+      "All interactive elements must have a minimum touch target of 44x44px.",
+      "Use semantic HTML (main, nav, article, section)."
+    ]
+  },
+  "instructions_to_main_agent": [
+    "1. SETUP: Install 'framer-motion', 'lucide-react', 'clsx', 'tailwind-merge'.",
+    "2. ROUTING: Use 'react-router-dom'. Create a layout wrapper that handles the bottom navigation visibility (hide on 'Help Now' flow).",
+    "3. STATE: Use 'zustand' for global state (user preferences, course progress).",
+    "4. EMERGENCY FLOW: This is the core feature. It must be accessible offline. Use local storage to cache assets if possible.",
+    "5. BREATHING: Implement the breathing circle with 'framer-motion'. It should be smooth and hypnotic.",
+    "6. GROUNDING: The 5-4-3-2-1 exercise should be interactive. Let the user tap to 'check off' items.",
+    "7. COURSES: Use a card-based layout. Each course has modules. Track progress visually.",
+    "8. STRIPE: Mock the Stripe integration for now, but build the UI for the subscription page.",
+    "9. PWA: Ensure the manifest.json is configured for a standalone experience."
+  ],
+  "universal_guidelines": [
+    "Avoid 'AI Slop': No generic gradients, no 'Inter' font everywhere.",
+    "Micro-interactions: Buttons should scale on press. Cards should lift on hover.",
+    "Glassmorphism: Use it sparingly for the bottom nav and overlays.",
+    "Data-TestID: Add 'data-testid' to all interactive elements."
+  ]
+}
