@@ -2,11 +2,9 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
-
   "engines": {
-    "node": "24.x"
+    "node": ">=20 <21"
   },
-
   "dependencies": {
     "@hookform/resolvers": "^5.0.1",
     "@radix-ui/react-accordion": "^1.2.8",
@@ -62,10 +60,19 @@
     "zod": "^3.24.4",
     "zustand": "^5.0.10"
   },
-
   "scripts": {
     "start": "craco start",
     "build": "craco build",
     "test": "craco test"
+  },
+  "devDependencies": {
+    "@craco/craco": "^7.1.0",
+    "ajv": "6.12.6",
+    "ajv-keywords": "3.5.2"
+  },
+  "resolutions": {
+    "ajv": "6.12.6",
+    "ajv-keywords": "3.5.2",
+    "ajv-formats": "0.0.0"
   }
 }
