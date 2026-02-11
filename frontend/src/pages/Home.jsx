@@ -1,8 +1,9 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Heart, Sparkles, BookOpen, Clock } from 'lucide-react';
 import { useUserStore, useCourseStore } from '@/store/useStore';
 import { useEffect } from 'react';
+import { SEOHead } from '@/components/SEOHead';
 
 export default function Home() {
   const navigate = useNavigate();

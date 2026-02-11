@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Heart, ArrowRight } from 'lucide-react';
 import { useEmergencyStore } from '@/store/useStore';
+import { SEOHead } from '@/components/SEOHead';
 
 export default function HelpNow() {
   const navigate = useNavigate();

@@ -1,7 +1,8 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Wind, Anchor, Moon, Music, Brain, Timer, ChevronRight } from 'lucide-react';
 import { useSettingsStore } from '@/store/useStore';
+import { SEOHead } from '@/components/SEOHead';
 
 const tools = [
   {

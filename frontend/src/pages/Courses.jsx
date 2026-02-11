@@ -1,8 +1,9 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Lock, ChevronRight } from 'lucide-react';
 import { useEffect } from 'react';
 import { useCourseStore, useUserStore } from '@/store/useStore';
+import { SEOHead } from '@/components/SEOHead';
 
 export default function Courses() {
   const navigate = useNavigate();
