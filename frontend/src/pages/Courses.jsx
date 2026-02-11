@@ -17,12 +17,14 @@ export default function Courses() {
   }, [fetchCourses, token]);
 
   return (
-    <div className="page-scroll p-6 safe-top">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="space-y-6"
-      >
+    <>
+      <SEOHead page="courses" />
+      <div className="page-scroll p-6 safe-top">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-6"
+        >
         {/* Header */}
         <div className="pt-4">
           <h1 className="text-2xl font-bold text-[#1A3C2F]" data-testid="courses-title">
@@ -74,8 +76,25 @@ export default function Courses() {
             </button>
           </motion.div>
         )}
+
+        {/* SEO Footer Links */}
+        <div className="pt-4 pb-20 border-t border-[#E8F5E9]">
+          <p className="text-xs text-[#7A9B8D] mb-3">Quick resources:</p>
+          <div className="flex flex-wrap gap-x-4 gap-y-2">
+            <Link to="/panic-attack-help" className="text-xs text-[#76B992] hover:underline">
+              Panic Attack Help
+            </Link>
+            <Link to="/breathing-exercise" className="text-xs text-[#76B992] hover:underline">
+              Breathing Exercises
+            </Link>
+            <Link to="/anxiety-tools" className="text-xs text-[#76B992] hover:underline">
+              Anxiety Tools
+            </Link>
+          </div>
+        </div>
       </motion.div>
     </div>
+    </>
   );
 }
 

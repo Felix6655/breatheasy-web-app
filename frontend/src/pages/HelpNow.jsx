@@ -14,7 +14,9 @@ export default function HelpNow() {
   };
 
   return (
-    <div className="emergency-bg min-h-screen flex flex-col items-center justify-center p-6 safe-top safe-bottom">
+    <>
+      <SEOHead page="helpNow" />
+      <div className="emergency-bg min-h-screen flex flex-col items-center justify-center p-6 safe-top safe-bottom">
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -71,5 +73,6 @@ export default function HelpNow() {
         </button>
       </motion.div>
     </div>
+    </>
   );
 }
