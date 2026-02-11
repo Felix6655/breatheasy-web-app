@@ -6,7 +6,7 @@ import json
 from datetime import datetime
 
 class BreatheEasyAPITester:
-    def __init__(self, base_url="https://breatheasy-25.preview.emergentagent.com"):
+    def __init__(self, base_url="https://breatheeasy-4.preview.emergentagent.com"):
         self.base_url = base_url
         self.token = None
         self.user_id = None
@@ -168,7 +168,7 @@ class BreatheEasyAPITester:
         if self.token:
             checkout_data = {
                 "plan_id": "monthly",
-                "origin_url": "https://breatheasy-25.preview.emergentagent.com"
+                "origin_url": "https://breatheeasy-4.preview.emergentagent.com"
             }
             success, checkout_response = self.run_test(
                 "Create Checkout Session",

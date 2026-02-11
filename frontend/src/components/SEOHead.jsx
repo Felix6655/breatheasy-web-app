@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 
-const BASE_URL = 'https://breatheasy-25.preview.emergentagent.com';
+const BASE_URL = 'https://breatheeasy-4.preview.emergentagent.com';
 
 // Default SEO values
 const defaultSEO = {

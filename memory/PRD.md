@@ -3,8 +3,8 @@
 ## Production Status: READY ✅
 
 ## Production URLs
-- **Frontend**: https://breatheasy-25.preview.emergentagent.com
-- **Backend API**: https://breatheasy-25.preview.emergentagent.com/api
+- **Frontend**: https://breatheeasy-4.preview.emergentagent.com
+- **Backend API**: https://breatheeasy-4.preview.emergentagent.com/api
 
 ## Original Problem Statement
 Build a panic attack & anxiety support app with a light green, calming UI focused on immediate panic relief, guided grounding, and structured learning courses, with Stripe subscriptions enabled for monetization.
