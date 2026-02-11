@@ -39,7 +39,19 @@ Build a panic attack & anxiety support app with a light green, calming UI focuse
 - [x] Gentle upsell modal after panic session completion
 - [x] Audio player for calming sounds
 
-## What's Been Implemented (2026-01-25)
+## What's Been Implemented (2026-02-11)
+
+### SEO Implementation (Latest)
+- [x] `react-helmet-async` for dynamic page meta tags
+- [x] Static `sitemap.xml` with 7 URLs (/, /help-now, /tools, /courses, /panic-attack-help, /breathing-exercise, /anxiety-tools)
+- [x] Static `robots.txt` allowing all crawlers
+- [x] SEO landing pages with proper H1/H2 structure:
+  - `/panic-attack-help` - Panic Attack Help guide
+  - `/breathing-exercise` - Breathing exercises guide  
+  - `/anxiety-tools` - Anxiety tools overview
+- [x] Footer links on Home, Tools, Courses pages to SEO landing pages
+- [x] Canonical URLs and Open Graph tags on all pages
+- [x] JSON-LD structured data in index.html (WebApplication, FAQ schemas)
 
 ### Backend
 - User authentication (register, login, session management)
@@ -137,6 +149,7 @@ Gentle paywall copy:
 - [x] Stripe integration
 - [x] 8 languages
 - [x] PWA support
+- [x] SEO implementation (sitemap, robots.txt, landing pages, meta tags)
 
 ### P1 (High Priority)
 - [ ] Real audio files (rain, ocean, white noise)
