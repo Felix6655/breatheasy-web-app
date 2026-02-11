@@ -1,6 +1,7 @@
 import { useEffect, useRef, createContext, useContext, useState } from "react";
 import "@/App.css";
 import { BrowserRouter, Routes, Route, useLocation, useNavigate } from "react-router-dom";
+import { HelmetProvider } from "react-helmet-async";
 import { useUserStore, useSettingsStore, usePwaStore, useOfflineStore } from "@/store/useStore";
 import { Toaster } from "@/components/ui/sonner";
 import { getTranslation, isRtl } from "@/i18n";
@@ -21,6 +22,11 @@ import Register from "@/pages/Register";
 import Subscription from "@/pages/Subscription";
 import SubscriptionSuccess from "@/pages/SubscriptionSuccess";
 import BottomNav from "@/components/BottomNav";
+
+// SEO Landing Pages
+import PanicAttackHelp from "@/pages/PanicAttackHelp";
+import BreathingExercise from "@/pages/BreathingExercise";
+import AnxietyTools from "@/pages/AnxietyTools";
 
 // i18n Context
 const I18nContext = createContext(null);
@@ -273,14 +279,16 @@ function AppRouter() {
     );
   }
 
-  // Check if we're in emergency flow (hide bottom nav)
+  // Check if we're in emergency flow or SEO pages (hide bottom nav)
   const isEmergencyFlow = location.pathname.startsWith('/emergency');
+  const isSEOPage = ['/panic-attack-help', '/breathing-exercise', '/anxiety-tools'].includes(location.pathname);
 
   return (
     <div className="app-container">
       <OfflineBanner />
       
       <Routes>
+        {/* Main App Routes */}
         <Route path="/" element={<Home />} />
         <Route path="/help-now" element={<HelpNow />} />
         <Route path="/emergency" element={<Emergency />} />
@@ -296,9 +304,14 @@ function AppRouter() {
         <Route path="/subscription/success" element={<SubscriptionSuccess />} />
         <Route path="/premium/success" element={<SubscriptionSuccess />} />
         <Route path="/premium/cancel" element={<Subscription />} />
+        
+        {/* SEO Landing Pages */}
+        <Route path="/panic-attack-help" element={<PanicAttackHelp />} />
+        <Route path="/breathing-exercise" element={<BreathingExercise />} />
+        <Route path="/anxiety-tools" element={<AnxietyTools />} />
       </Routes>
       
-      {!isEmergencyFlow && <BottomNav />}
+      {!isEmergencyFlow && !isSEOPage && <BottomNav />}
       <PwaInstallPrompt />
     </div>
   );
@@ -306,12 +319,14 @@ function AppRouter() {
 
 function App() {
   return (
-    <I18nProvider>
-      <BrowserRouter>
-        <AppRouter />
-      </BrowserRouter>
-      <Toaster position="top-center" richColors />
-    </I18nProvider>
+    <HelmetProvider>
+      <I18nProvider>
+        <BrowserRouter>
+          <AppRouter />
+        </BrowserRouter>
+        <Toaster position="top-center" richColors />
+      </I18nProvider>
+    </HelmetProvider>
   );
 }
 
