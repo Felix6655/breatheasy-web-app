@@ -2,11 +2,12 @@ import { useEffect, useRef, createContext, useContext, useState } from "react";
 import "@/App.css";
 import { BrowserRouter, Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
-import { useUserStore, useSettingsStore, usePwaStore, useOfflineStore } from "@/store/useStore";
+import { useUserStore, useSettingsStore, useOfflineStore } from "@/store/useStore";
 import { Toaster } from "@/components/ui/sonner";
 import { getTranslation, isRtl } from "@/i18n";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Download, Wifi, WifiOff } from "lucide-react";
+import { WifiOff } from "lucide-react";
+import InstallBanner from "@/components/InstallBanner";
 
 // Pages
 import Home from "@/pages/Home";
