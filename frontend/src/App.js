@@ -54,58 +54,6 @@ function I18nProvider({ children }) {
   );
 }
 
-// PWA Install Prompt Component
-function PwaInstallPrompt() {
-  const { t } = useI18n();
-  const showInstallPrompt = usePwaStore((state) => state.showInstallPrompt);
-  const dismissPrompt = usePwaStore((state) => state.dismissPrompt);
-  const install = usePwaStore((state) => state.install);
-  
-  if (!showInstallPrompt) return null;
-  
-  return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0, y: 100 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 100 }}
-        className="fixed bottom-24 left-4 right-4 max-w-md mx-auto z-50"
-      >
-        <div className="bg-white rounded-2xl shadow-xl border border-[#E8F5E9] p-4">
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#A8D5BA] flex items-center justify-center flex-shrink-0">
-              <Download className="w-5 h-5 text-[#1A3C2F]" />
-            </div>
-            <div className="flex-1">
-              <p className="text-sm text-[#1A3C2F] font-medium mb-3">
-                {t('pwa.installPrompt')}
-              </p>
-              <div className="flex gap-2">
-                <button
-                  onClick={install}
-                  className="flex-1 bg-[#A8D5BA] text-[#1A3C2F] font-semibold py-2 px-4 rounded-xl text-sm"
-                  data-testid="pwa-install-btn"
-                >
-                  {t('pwa.install')}
-                </button>
-                <button
-                  onClick={dismissPrompt}
-                  className="px-4 py-2 text-[#7A9B8D] text-sm"
-                >
-                  {t('pwa.notNow')}
-                </button>
-              </div>
-            </div>
-            <button onClick={dismissPrompt} className="text-[#7A9B8D]">
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-      </motion.div>
-    </AnimatePresence>
-  );
-}
-
 // Offline Banner
 function OfflineBanner() {
   const { t } = useI18n();
