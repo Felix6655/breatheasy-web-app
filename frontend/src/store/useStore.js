@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { detectLanguage, isRtl } from '@/i18n';
 
-const API_URL = process.env.REACT_APP_BACKEND_URL + '/api';
+const API_URL = '/api';
 
 // User store
 export const useUserStore = create(
@@ -276,18 +276,28 @@ export const useCourseStore = create(
       setCurrentLesson: (lesson) => set({ currentLesson: lesson }),
       
       fetchCourses: async (token) => {
+        let loading = true;
         try {
           const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
           const response = await fetch(`${API_URL}/courses`, {
             credentials: 'include',
             headers
           });
-          if (response.ok) {
-            const courses = await response.json();
-            set({ courses });
+          const contentType = response.headers.get('content-type');
+          if (!response.ok || !contentType || !contentType.includes('application/json')) {
+            throw new Error('Courses API did not return JSON.');
           }
+          const courses = await response.json();
+          if (!Array.isArray(courses) || courses.length === 0) {
+            set({ courses: [] });
+            throw new Error('No courses available yet');
+          }
+          set({ courses });
         } catch (e) {
+          set({ courses: [] });
           console.error('Failed to fetch courses:', e);
+        } finally {
+          loading = false;
         }
       }
     }),

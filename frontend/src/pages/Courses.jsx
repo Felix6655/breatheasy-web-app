@@ -33,7 +33,10 @@ export default function Courses() {
         {/* Course Categories */}
         <div className="space-y-4">
           {courses.length === 0 ? (
-            <CourseSkeleton />
+            <div className="text-center py-8 text-[#4A6B5D]">
+              <CourseSkeleton />
+              <div className="mt-6 text-lg">No courses available yet.</div>
+            </div>
           ) : (
             courses.map((course, index) => (
               <motion.div
