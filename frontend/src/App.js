@@ -183,21 +183,9 @@ function AppRouter() {
   const location = useLocation();
   const checkAuth = useUserStore((state) => state.checkAuth);
   const isLoading = useUserStore((state) => state.isLoading);
-  const incrementVisit = usePwaStore((state) => state.incrementVisit);
-  const setDeferredPrompt = usePwaStore((state) => state.setDeferredPrompt);
-  const isOnline = useOfflineStore((state) => state.isOnline);
 
   useEffect(() => {
     checkAuth();
-    incrementVisit();
-    
-    // PWA install prompt handler
-    const handleBeforeInstallPrompt = (e) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-    };
-    
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     
     // Register service worker
     if ('serviceWorker' in navigator) {
@@ -205,11 +193,7 @@ function AppRouter() {
         .then((reg) => console.log('Service worker registered'))
         .catch((err) => console.log('Service worker registration failed:', err));
     }
-    
-    return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    };
-  }, [checkAuth, incrementVisit, setDeferredPrompt]);
+  }, [checkAuth]);
 
   // Handle OAuth callback - check URL fragment for session_id
   if (location.hash?.includes('session_id=')) {
