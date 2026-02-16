@@ -5,7 +5,8 @@
   "resolutions": {
     "ajv": "6.12.6",
     "ajv-keywords": "3.5.2",
-    "schema-utils": "3.1.1"
+    "schema-utils": "3.1.1",
+    "terser-webpack-plugin": "5.2.5"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.0.1",
