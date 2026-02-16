@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://breatheeasy-4.preview.emergentagent.com/sitemap.xml
+Sitemap: https://breatheasy.world/sitemap.xml
