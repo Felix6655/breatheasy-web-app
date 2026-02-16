@@ -245,7 +245,7 @@ function AppRouter() {
       </Routes>
       
       {!isEmergencyFlow && !isSEOPage && <BottomNav />}
-      <PwaInstallPrompt />
+      <InstallBanner />
     </div>
   );
 }
